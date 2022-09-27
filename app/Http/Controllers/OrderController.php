@@ -36,4 +36,14 @@ class OrderController extends Controller
             'data' => $orderCollection->jsonSerialize()["orders"]
         ]);
     }
+
+    public function show(int $id): View
+    {
+        try {
+            $order = $this->orderService->getOrderById($id);
+        } catch (\Exception $e) {
+            return redirect()->route("order.index")->with("error", $e->getMessage());
+        }
+        return view("order.show", compact("order"));
+    }
 }
