@@ -28,17 +28,32 @@ class OrderService
         $orders = new OrderCollection();
 
         foreach ($emails as $email) {
-            $order = (new Order($email["id"]))
-                ->setSubject($email["subject"])
-                ->setSenderName($email["senderName"])
-                ->setSenderEmail($email["senderEmail"])
-                ->setTextBody($email["textBody"])
-                ->setHtmlBody($email["htmlBody"])
-                ->setDate($email["date"]);
+            $order = (new Order($email->id))
+                ->setSubject($email->subject)
+                ->setSenderName($email->senderName)
+                ->setSenderEmail($email->senderEmail)
+                ->setTextBody($email->textBody)
+                ->setHtmlBody($email->htmlBody)
+                ->setDate($email->date);
 
             $orders->addOrder($order);
         }
 
         return $orders;
+    }
+
+    public function getOrderById(int $id): Order
+    {
+        $order = $this->emailRepository->getMessageById($id);
+
+        $fromData = $order->getFrom()[0];
+
+        return (new Order($order->getUid()))
+            ->setSubject($order->getSubject())
+            ->setSenderName($fromData->personal)
+            ->setSenderEmail($fromData->mail)
+            ->setTextBody(($order->hasTextBody()) ? $order->getTextBody() : "")
+            ->setHtmlBody(($order->hasHtmlBody()) ? $order->getHTMLBody() : "")
+            ->setDate($order->getDate()[0]->format("Y-m-d H:i:s"));
     }
 }

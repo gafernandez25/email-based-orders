@@ -4,7 +4,9 @@ namespace App\Repositories;
 
 use App\Services\ImapConnection;
 use Illuminate\Support\Facades\Config;
+use stdClass;
 use Webklex\PHPIMAP\Folder;
+use Webklex\PHPIMAP\Message;
 use Webklex\PHPIMAP\Support\MessageCollection;
 
 class EmailRepository
@@ -41,24 +43,33 @@ class EmailRepository
             throw new \Exception("Emails could not be read");
         }
 
-        return $this->formatMessages($messages);
+        return array_reverse(array_map(array($this, "formatMessage"), $messages->toArray()));
     }
 
-    public function formatMessages(MessageCollection $messages): array
+    public function getMessageById(int $id): stdClass
     {
-        return array_reverse(
-            array_map(function ($message) {
-                $fromData = $message->getFrom()[0];
-                return [
-                    "id" => $message->getUid(),
-                    "subject" => $message->getSubject(),
-                    "senderName" => $fromData->personal,
-                    "senderEmail" => $fromData->mail,
-                    "textBody" => ($message->hasTextBody()) ? $message->getTextBody() : "",
-                    "htmlBody" => ($message->hasHtmlBody()) ? $message->getHTMLBody() : "",
-                    "date" => $message->getDate()[0]->format("Y-m-d H:i:s")
-                ];
-            }, $messages->toArray())
-        );
+        try {
+            $message = $this->folder->messages()->getMessageByUid($id);
+        } catch (\Exception $e) {
+            throw new \Exception("Email could not be read");
+        }
+        return $this->formatMessage($message);
+    }
+
+    public function formatMessage(Message $message): stdClass
+    {
+        $obj = new stdClass();
+
+        $fromData = $message->getFrom()[0];
+
+        $obj->id = $message->getUid();
+        $obj->subject = $message->getSubject();
+        $obj->senderName = $fromData->personal;
+        $obj->senderEmail = $fromData->mail;
+        $obj->textBody = ($message->hasTextBody()) ? $message->getTextBody() : "";
+        $obj->htmlBody = ($message->hasHtmlBody()) ? $message->getHTMLBody() : "";
+        $obj->date = $message->getDate()[0]->format("Y-m-d H:i:s");
+
+        return $obj;
     }
 }
