@@ -19,4 +19,5 @@ Route::controller(OrderController::class)->group(function () {
     Route::get("/order/datatable", "indexDatatable")->name("order.indexDatatable");
     Route::get("/order/{id}", "show")->name("order.show")->where(["id" => "[0-9]+"]);
     Route::get("/order/{id}/reply", "reply")->name("order.reply")->where(["id" => "[0-9]+"]);
+    Route::post("/order/{id}/reply/send", "sendReply")->name("order.reply.send")->where(["id" => "[0-9]+"]);
 });

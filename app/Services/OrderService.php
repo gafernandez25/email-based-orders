@@ -3,8 +3,12 @@
 namespace App\Services;
 
 use App\Collections\OrderCollection;
+use App\Mail\ReplyOrder;
 use App\Models\Order;
 use App\Repositories\EmailRepository;
+use Exception;
+use Illuminate\Support\Facades\Mail;
+use stdClass;
 
 class OrderService
 {
@@ -53,5 +57,17 @@ class OrderService
             ->setTextBody($email->textBody)
             ->setHtmlBody($email->htmlBody)
             ->setDate($email->date);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function sendReplyEmail(Order $order, string $body): void
+    {
+        $email = new stdClass();
+        $email->subject = $order->getSubject();
+        $email->body = $body;
+
+        Mail::to($order->getSenderEmail())->send(new ReplyOrder($email));
     }
 }
