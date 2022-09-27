@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Dtos\EmailDto;
 use App\Services\ImapConnection;
 use Illuminate\Support\Facades\Config;
 use stdClass;
@@ -43,7 +44,15 @@ class EmailRepository
             throw new \Exception("Emails could not be read");
         }
 
-        return array_reverse(array_map(array($this, "formatMessage"), $messages->toArray()));
+        return array_reverse(
+            array_map(
+                array(
+                    new EmailDto(),
+                    "formatMessage"
+                ),
+                $messages->toArray()
+            )
+        );
     }
 
     public function getMessageById(int $id): stdClass
@@ -53,23 +62,6 @@ class EmailRepository
         } catch (\Exception $e) {
             throw new \Exception("Email could not be read");
         }
-        return $this->formatMessage($message);
-    }
-
-    public function formatMessage(Message $message): stdClass
-    {
-        $obj = new stdClass();
-
-        $fromData = $message->getFrom()[0];
-
-        $obj->id = $message->getUid();
-        $obj->subject = $message->getSubject();
-        $obj->senderName = $fromData->personal;
-        $obj->senderEmail = $fromData->mail;
-        $obj->textBody = ($message->hasTextBody()) ? $message->getTextBody() : "";
-        $obj->htmlBody = ($message->hasHtmlBody()) ? $message->getHTMLBody() : "";
-        $obj->date = $message->getDate()[0]->format("Y-m-d H:i:s");
-
-        return $obj;
+        return (new EmailDto())->formatMessage($message);
     }
 }
