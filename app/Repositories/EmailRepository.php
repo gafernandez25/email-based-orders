@@ -7,8 +7,6 @@ use App\Services\ImapConnection;
 use Illuminate\Support\Facades\Config;
 use stdClass;
 use Webklex\PHPIMAP\Folder;
-use Webklex\PHPIMAP\Message;
-use Webklex\PHPIMAP\Support\MessageCollection;
 
 class EmailRepository
 {
@@ -28,6 +26,10 @@ class EmailRepository
         }
     }
 
+    /**
+     * @return stdClass[]
+     * @throws \Exception
+     */
     public function getPaginated(
         int $quantity = 10,
         int $page = 1,
