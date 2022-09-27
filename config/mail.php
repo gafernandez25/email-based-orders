@@ -45,6 +45,16 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
+        'imap' => [
+            'host' => env("IMAP_READER_HOST", ""),
+            'port' => env("IMAP_READER_PORT", null),
+            'encryption' => env("IMAP_READER_ENCRYPTION", 'ssl'),
+            'validate_cert' => env("IMAP_READER_VALIDATE_CERT", true),
+            'username' => env("IMAP_READER_USERNAME", ""),
+            'password' => env("IMAP_READER_PASSWORD", ""),
+            'protocol' => 'imap'
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
